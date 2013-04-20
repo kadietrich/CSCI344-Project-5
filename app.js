@@ -2,17 +2,12 @@
 var express = require("express"),
     http = require("http"),
     path = require("path"),
-    mongoose = require("mongoose"),
-    app = express();
+    app = express(),
+    ic;
     
-mongoose.connect("mongodb://localhost/development");    
-    
-var ItemSchema = {
-    "description":String,
-    "categories":[String]
-}
+//Controller
+ic = require("./controllers/itemController.js");
 
-var Item = mongoose.model("Item", ItemSchema);
 // This is our basic configuration                                                                                                                     
 app.configure(function () {
     // Define our static file directory, it will be 'public'                                                                                           
@@ -25,26 +20,5 @@ http.createServer(app).listen(3000, function(){
     console.log("Express server listening on port 3000");
 });
 
-app.get("/items.json", function (req, res) {
-    Item.find({}, function (err, items) {
-        if (err !== null) {
-            console.log(err);
-        } else {
-            res.json(items);
-        }
-    });
-});
-
-app.post("/items/new", function (req, res) {
-    var i = new Item({
-        "description":req.body.description,
-        "categories":req.body.categories
-    });
-    i.save(function (err, result) {
-        if (err !== null){
-            console.log(err);
-        } else {
-            res.json(result);
-        }
-    });
-});
+app.get("/items.json", ic.list);
+app.post("/items/new", ic.create);
